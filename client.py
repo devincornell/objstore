@@ -11,9 +11,14 @@ class DataStoreClient:
         'GET': requests.get,
         'PUT': requests.put,
     }
-    def __init__(self, host, port):
+    def __init__(self, host, port, repository='default_repository'):
         self.host = host if host.startswith('http://') else f'http://{host}'
-        self.urlbase = f'{self.host}:{port}'
+        self.port = port
+        self.repository = repository
+    
+    @property
+    def urlbase(self):
+        return f'{self.host}:{self.port}'
 
     def get_data(self, key, **request_params):
         # process args and make request
@@ -41,13 +46,14 @@ class DataStoreClient:
     def request(self, endpoint, method: str = 'GET', **request_kwargs):
         response = self.method_funcs[method](f'{self.urlbase}/{endpoint}', **request_kwargs)
         if response.status_code in errors:
-            errors[]
+            #errors[]
+            pass
         else:
             return response
 
 
 if __name__ == '__main__':
-    client = DataStoreClient('localhost', 9999)
+    client = DataStoreClient('localhost', 9999, repository='mydata')
     print(client.host)
     #res = requests.get('http://localhost:9999/hello?stop=5')
     #print(client.request('range', params={'stop':5}).json())

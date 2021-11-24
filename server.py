@@ -14,7 +14,7 @@ data_store = {'name': 'Devin', 'age': range(10)}
 def welcome():
     return "Hello World!"
 
-@app.route('/data', methods=['GET', 'PUT'])
+@app.route('/data', methods=['GET'])
 def data_endpoint():
     print(flask.request.method)
     # user is requesting data
@@ -28,6 +28,7 @@ def data_endpoint():
             return errors['data_not_found'].reply()
         
         payload = io.BytesIO(pickle.dumps(data_store[key]))
+        
         return flask.send_file(payload)
     
     # user is uploading data

@@ -21,8 +21,9 @@ class Error:
     
 
 error_list = [
-    Error('key_not_provided', 400, werkzeug.exceptions.BadRequest, 'A key parameter must be provided when putting or accessing this resource.'),
-    Error('data_not_found', 404, werkzeug.exceptions.NotFound, 'The requested data was not found on the server.'),
+    Error('key_not_provided', 460, werkzeug.exceptions.BadRequest, 'A key parameter must be provided when putting or accessing this resource.'),
+    Error('repository_not_found', 461, KeyError, 'The requested repository was not found on the server.'),
+    Error('key_not_found', 461, KeyError, 'The requested key was not found on the server.'),
     #Error('data_not_found', 404, werkzeug.exceptions.NotFound, 'The requested data was not found on the server.'),
 ]
 
