@@ -27,6 +27,7 @@ error_list = [
     Error('key_not_provided', 460, werkzeug.exceptions.BadRequest, 'A key parameter must be provided when putting or accessing this resource.'),
     Error('repository_not_found', 461, KeyError, 'The specified repository was not found on the server.'),
     Error('data_not_found', 462, KeyError, 'The requested data key was not found on the repository.'),
+    Error('no_data_received', 462, KeyError, 'No data was included in PUT request.'),
 ]
 
 names = {e.name: e for e in error_list}

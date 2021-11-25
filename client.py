@@ -5,6 +5,7 @@ import urllib
 import pickle
 import json
 import errors
+import io
 
 class Client:
     method_funcs = {
@@ -26,14 +27,14 @@ class Client:
     def urlbase(self):
         return f'{self.host}:{self.port}'
 
-    def status(self, **request_params):
-        response = self.request('status', 'GET', **request_params)
+    def status(self, **request_kwargs):
+        response = self.request('status', 'GET', **request_kwargs)
         return response.json()
 
-    def list_repos(self, **request_params):
+    def list_repos(self, **request_kwargs):
         '''Request a list of repositories from the server.
         '''
-        response = self.request('data', 'GET', **request_params)
+        response = self.request('data', 'GET', **request_kwargs)
         return response.json()
 
     def get_repo(self, repo_name: str):
@@ -41,14 +42,14 @@ class Client:
         '''
         return Repository(self, repo_name)
     
-    def request(self, endpoint, method: str = 'GET', verbose: bool = False, **request_kwargs):
+    def request(self, endpoint, method: str = 'GET', **request_kwargs):
         '''Make request and return response from server.
         '''
         url = f'{self.urlbase}/{endpoint}'
         response = self.method_funcs[method](url, **request_kwargs)
         
         if response.status_code in errors.codes:
-            raise errors[response.status_code].raise_exception()
+            raise errors.codes[response.status_code].raise_exception()
         else:
             response.raise_for_status()
             return response
@@ -59,27 +60,35 @@ class Repository:
         self.name = name
         self.client = client
 
-    def get_data(self, key: str = None, **request_params):
-        # process args and make request
-        if key is not None:
-            request_params['params'] = {**request_params.get('params',{}), **{'key': key}}
+    def get_keys(self, **request_kwargs):
+        '''Get the data keys associated with this repository.
+        '''
+        response = self.client.request(f'data/{self.name}/keys', 'GET', **request_kwargs)
+        return response.json()
+    
+    def get_all(self, **request_kwargs):
+        '''Get all data in the repository. May take a long time.
+        '''
+        response = self.client.request(f'data/{self.name}', 'GET', stream=True, **request_kwargs)
+        return pickle.load(response.raw)
 
+    def get_data(self, key: str, **request_kwargs):
+        '''Download specific data from the server.
+        '''
         # process args and make request
-        response = self.client.request(f'data/{self.name}', 'GET', stream=True, **request_params)
+        request_kwargs['params'] = {**request_kwargs.get('params',{}), **{'key': key}}
+        response = self.client.request(f'data/{self.name}', 'GET', stream=True, **request_kwargs)
         
         # handle response
         return pickle.load(response.raw)
 
-    def put_data(self, key, payload, **request_params):
-        # process args and make request
-        request_params['params'] = {**request_params.get('params',{}), **{'key': key}}
-        response = self.request('data', 'PUT')#, data={'payload': pickle.dumps(payload)})
+    def put_data(self, key, payload, **request_kwargs):
+        '''Upload data to the server.
+        '''
+        data = pickle.dumps(payload)
+        params = {'key': key}
+        response = self.client.request(f'data/{self.name}', 'PUT', data=data, params=params, stream=True, **request_kwargs)
         return response
-        # handle response
-        #if response.status_code == 200:
-        #    return True
-        #else:
-        #    return False
 
 
 if __name__ == '__main__':
@@ -87,11 +96,17 @@ if __name__ == '__main__':
     #print(client.host)
     print(client.list_repos())
     print(client.status())
-    users = client.get_repo('users')
-    print(users.get_data())
+    
+    user_repo = client.get_repo('userdata')
+    print(user_repo.get_keys())
+    print(user_repo.get_data('users'))
+    print(user_repo.get_all())
+    user_repo.put_data('friends', 'list of my friends')
+    print(user_repo.get_keys())
+    print(user_repo.get_data('friends'))
 
-    others = client.get_repo('others')
-    users.get_data()
+    #other_repo = client.get_repo('others')
+    #other_repo.get_data()
     #res = requests.get('http://localhost:9999/hello?stop=5')
     #print(client.request('range', params={'stop':5}).json())
     
