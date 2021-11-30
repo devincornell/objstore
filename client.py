@@ -1,17 +1,13 @@
 
 import requests
-import dataclasses
-import urllib
-import pickle
-import json
 import errors
 import io
 
 class Client:
     method_funcs = {
-        'POST': requests.post,
-        'GET': requests.get,
-        'PUT': requests.put,
+        'post': requests.post,
+        'get': requests.get,
+        'put': requests.put,
     }
 
     def __init__(self, host: str, port: int, test: bool = True):
@@ -54,56 +50,22 @@ class Client:
             response.raise_for_status()
             return response
 
-class Repository:
 
-    def __init__(self, client: Client, name: str = 'default_repository'):
-        self.name = name
-        self.client = client
-
-    def get_keys(self, **request_kwargs):
-        '''Get the data keys associated with this repository.
-        '''
-        response = self.client.request(f'data/{self.name}/keys', 'GET', **request_kwargs)
-        return response.json()
-    
-    def get_all(self, **request_kwargs):
-        '''Get all data in the repository. May take a long time.
-        '''
-        response = self.client.request(f'data/{self.name}', 'GET', stream=True, **request_kwargs)
-        return pickle.load(response.raw)
-
-    def get_data(self, key: str, **request_kwargs):
-        '''Download specific data from the server.
-        '''
-        # process args and make request
-        request_kwargs['params'] = {**request_kwargs.get('params',{}), **{'key': key}}
-        response = self.client.request(f'data/{self.name}', 'GET', stream=True, **request_kwargs)
-        
-        # handle response
-        return pickle.load(response.raw)
-
-    def put_data(self, key, payload, **request_kwargs):
-        '''Upload data to the server.
-        '''
-        data = pickle.dumps(payload)
-        params = {'key': key}
-        response = self.client.request(f'data/{self.name}', 'PUT', data=data, params=params, stream=True, **request_kwargs)
-        return response
 
 
 if __name__ == '__main__':
-    client = Client('localhost', port=9999)
+    client = Client('localhost', port=8000)
     #print(client.host)
     print(client.list_repos())
     print(client.status())
     
-    user_repo = client.get_repo('userdata')
-    print(user_repo.get_keys())
-    print(user_repo.get_data('users'))
-    print(user_repo.get_all())
-    user_repo.put_data('friends', 'list of my friends')
-    print(user_repo.get_keys())
-    print(user_repo.get_data('friends'))
+    #user_repo = client.get_repo('userdata')
+    #print(user_repo.get_keys())
+    #print(user_repo.get_data('users'))
+    #print(user_repo.get_all())
+    #user_repo.put_data('friends', 'list of my friends')
+    #print(user_repo.get_keys())
+    #print(user_repo.get_data('friends'))
 
     #other_repo = client.get_repo('others')
     #other_repo.get_data()
