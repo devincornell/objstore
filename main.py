@@ -3,9 +3,15 @@ import objstore
 
 if __name__ == '__main__':
     client = objstore.Client('localhost', port=8000)
-    #print(client.host)
-    print(client.list_repos())
     print(client.status())
+    print(client.list_repos())
+    print(client.request('get', 'repo/myrepo'))
+
+    repo = client.get_repo('myrepo')
+    mydata = repo.get_data('mydata')
+    print(list(mydata))
+    
+    
     
     #user_repo = client.get_repo('userdata')
     #print(user_repo.get_keys())

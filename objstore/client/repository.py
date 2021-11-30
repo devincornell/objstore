@@ -3,12 +3,17 @@ import dataclasses
 import urllib
 import pickle
 import json
+from ..errors import RepoDoesNotExist
 
 class Repository:
 
-    def __init__(self, client: Client, name: str = 'default_repository'):
-        self.name = name
+    def __init__(self, client, repo_name: str, check_repo: bool = True):
+        self.name = repo_name
         self.client = client
+
+        # ask the server if the repository exists
+        if check_repo and self.name not in self.client.list_repos():
+            raise RepoDoesNotExist(f'The repository "{repo_name}" does not exist on the server.')
 
     def get_keys(self, **request_kwargs):
         '''Get the data keys associated with this repository.
@@ -27,7 +32,7 @@ class Repository:
         '''
         # process args and make request
         request_kwargs['params'] = {**request_kwargs.get('params',{}), **{'key': key}}
-        response = self.client.request(f'data/{self.name}', 'GET', stream=True, **request_kwargs)
+        response = self.client.request('GET', f'repo/{self.name}', stream=True, **request_kwargs)
         
         # handle response
         return pickle.load(response.raw)

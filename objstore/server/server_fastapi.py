@@ -1,25 +1,53 @@
-from typing import Optional
-
+from typing import Optional, Any
+import pickle
+import pathlib
 import fastapi
+
+from .repodata import RepoData
 
 app = fastapi.FastAPI()
 
 
+
+@app.on_event("startup")
+async def startup():
+    app.state.fname = None
+    app.state.repodata = RepoData(app.state.fname)
+
 @app.get("/status")
-async def status():
-    return {"live": True}
+async def status(request: fastapi.Request):
+    return {
+        "live": True, 
+        'num_repos': len(request.app.state.repodata),
+        'num_items': request.app.state.repodata.num_items(),
+    }
 
-@app.get("/repos")
-async def repos():
-    return ['a', 'b', 'c']
+@app.get("/list_repos")
+async def get_repos(request: fastapi.Request):
+    return list(request.app.state.repodata.keys())
 
-@app.get("/repo/{repo_name}")
-async def data(repo_name: str):
-    return repo_name
+@app.get("/repo/{repo_name}", response_model=bytes)
+async def get_repo(request: fastapi.Request, repo_name: str, key: Optional[str] = None):
+    repodata = request.app.state.repodata
+    
+    if key is not None:
+        return fastapi.Response(content=pickle.dumps(repodata[repo_name][key]), media_type='application/octet-stream')
+    else:
+        return fastapi.Response(content=pickle.dumps(repodata[repo_name]), media_type='application/octet-stream')
 
-@app.put("/repo/{repo_name}", response_model=bytes)
-async def data(repo_name: str, data: bytes):
-    return data
+@app.put("/repo/{repo_name}")
+async def get_repo(request: fastapi.Request, repo_name: str, key: Optional[str] = None):
+    data = request.app.state.repodata
+    
+    if key is not None:
+        return fastapi.Response(content=pickle.dumps(data[repo_name][key]), media_type='application/octet-stream')
+    else:
+        return fastapi.Response(content=pickle.dumps(data[repo_name]), media_type='application/octet-stream')
+
+
+#@app.put("/repo/{repo_name}", response_model=bytes)
+#async def data(repo_name: str, data: bytes):
+#    return data
 
 
 #class Data(flask_restful.Resource):
