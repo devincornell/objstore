@@ -9,18 +9,17 @@ app = fastapi.FastAPI()
 async def status():
     return {"live": True}
 
-
 @app.get("/repos")
 async def repos():
     return ['a', 'b', 'c']
 
-@app.get("/repo/{key}")
-async def data(key: str):
-    return key
+@app.get("/repo/{repo_name}")
+async def data(repo_name: str):
+    return repo_name
 
-@app.put("/repo/{key}")
-async def data(key: str, data: bytes):
-    return key
+@app.put("/repo/{repo_name}", response_model=bytes)
+async def data(repo_name: str, data: bytes):
+    return data
 
 
 #class Data(flask_restful.Resource):
