@@ -5,12 +5,14 @@ if __name__ == '__main__':
     client = objstore.Client('localhost', port=8000)
     print(client.status())
     print(client.list_repos())
-    client.make_repo('new_repo')
-    print(client.list_repos())
 
     repo = client.get_repo('new_repo')
-    #print(repo.list_keys())
-    print(repo.get_data('a'))
+    print(client.list_repos())
+    print(repo.list_keys())
+    print(repo.put_data('a', range(10)))
+    print(list(repo.get_data('a')))
+    print(repo.list_keys())
+    #print(repo.get_data('a'))
     #print(client.request('get', 'repo/myrepo'))
 
     #repo = client.get_repo('myrepo')

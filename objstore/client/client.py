@@ -52,11 +52,13 @@ class Client:
         url = f'{self.urlbase}/{endpoint}'
         response = self.method_funcs[method.lower()](url, **request_kwargs)
         
-        #if response.status_code in errors.codes:
-            #raise errors.codes[response.status_code].raise_exception()
         if response.status_code != 200:
+            
+            # try to modify reason before raising exception
+            # see how the .raise_for_status() implementation uses self.reason
+            # https://docs.python-requests.org/en/latest/_modules/requests/models/#Response.raise_for_status
             try:
-                response.reason = response.json()['detail']
+                response.reason = response.json()
             except:
                 pass
             response.raise_for_status()

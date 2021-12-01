@@ -1,0 +1,2 @@
+uvicorn objstore:app --reload
+
