@@ -4,11 +4,15 @@ import werkzeug
 
 class RepoDoesNotExist(BaseException):
     def __init__(self, *args, **kwargs):
-        super.__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
+class RepoAlreadyExists(BaseException):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 class KeyDoesNotExist(BaseException):
     def __init__(self, *args, **kwargs):
-        super.__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 @dataclasses.dataclass
 class Error:

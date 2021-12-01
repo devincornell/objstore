@@ -24,7 +24,7 @@ async def status(request: fastapi.Request):
 
 @app.get("/list_repos")
 async def get_repos(request: fastapi.Request):
-    return list(request.app.state.repodata.keys())
+    return list(request.app.state.repodata.list_repos())
 
 @app.get("/repo/{repo_name}", response_model=bytes)
 async def get_repo(request: fastapi.Request, repo_name: str, key: Optional[str] = None):
