@@ -55,6 +55,10 @@ class Client:
         #if response.status_code in errors.codes:
             #raise errors.codes[response.status_code].raise_exception()
         if response.status_code != 200:
+            try:
+                response.reason = response.json()['detail']
+            except:
+                pass
             response.raise_for_status()
         else:
             return response

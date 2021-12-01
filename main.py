@@ -8,7 +8,9 @@ if __name__ == '__main__':
     client.make_repo('new_repo')
     print(client.list_repos())
 
-    
+    repo = client.get_repo('new_repo')
+    #print(repo.list_keys())
+    print(repo.get_data('a'))
     #print(client.request('get', 'repo/myrepo'))
 
     #repo = client.get_repo('myrepo')

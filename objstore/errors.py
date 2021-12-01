@@ -9,10 +9,12 @@ import fastapi
 class ObjStoreBaseException(fastapi.HTTPException):
     '''Each inheriting class must provide status_code and message properties for the http response.
     '''
+    verbose = True
     def __init__(self, *args, **kwargs):
+        if self.verbose: print(self.message)
         super().__init__(*args, status_code=self.status_code, detail=self.message, **kwargs)
 
-class RepoAlreadyExists(BaseException):
+class RepoAlreadyExists(ObjStoreBaseException):
     status_code = 409
     def __init__(self, repo_name: str, *args, **kwargs):
         self.repo_name = repo_name
@@ -34,7 +36,7 @@ class RepoDoesNotExist(ObjStoreBaseException):
         return f'The repository "{self.repo_name}" does not exist on the server.'
 
 
-class KeyDoesNotExist(BaseException):
+class KeyDoesNotExist(ObjStoreBaseException):
     status_code = 404
     def __init__(self, repo_name: str, key_name: str, *args, **kwargs):
         self.repo_name = repo_name

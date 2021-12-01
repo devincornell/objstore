@@ -25,6 +25,8 @@ async def status(request: fastapi.Request):
 
 @app.get("/repositories/list")
 async def list_repos(request: fastapi.Request):
+    '''List repositories on the server.
+    '''
     return list(request.app.state.repodata.list_repos())
 
 @app.post("/repositories/new", status_code=201)
@@ -38,6 +40,12 @@ async def make_repo(request: fastapi.Request, repo_name: str):
 #async def put_data(request: fastapi.Request, repo_name: str, key: str):
 #
 #    repo = request.app.state.repodata.set_repo(repo_name)
+
+#@app.get("/repositories/repo/{repo_name}/keys")
+#async def get_data(request: fastapi.Request, repo_name: str):
+#    '''Get list of keys in this repository.
+#    '''
+#    return list(request.app.state.repodata.get_data(repo_name).keys())
 
 @app.get("/repositories/repo/{repo_name}", response_model=bytes)
 async def get_data(request: fastapi.Request, repo_name: str, key: Optional[str] = None):
