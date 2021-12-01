@@ -33,31 +33,33 @@ class RepoData:
         try:
             repo = self.data[repo_name]
         except KeyError:
-            raise RepoDoesNotExist(f'The repository "{repo_name}" does not exist on the server.')
+            raise RepoDoesNotExist(repo_name)
             
         return repo
     
-    def set_repo(self, repo_name: str):
+    def make_repo(self, repo_name: str):
         '''Make a new repository on the server.
         '''
         if repo_name in self.data.keys():
-            raise RepoAlreadyExists(f'The repository "{repo_name}" already exists'
-                ' - cannot create it twice.')
+            raise RepoAlreadyExists(repo_name)
         
         self.data[repo_name] = {}
 
-    def get_data(self, repo_name: str, key: str):
+    def get_data(self, repo_name: str, key: str = None):
         '''Get the data from the given repository.
         '''
         repo = self.get_repo(repo_name)
-        try:
-            data = repo[key]
-        except KeyError:
-            raise KeyDoesNotExist()
-        
-        return data
+        if key is None:
+            return repo
+        else:
+            try:
+                data = repo[key]
+            except KeyError:
+                raise KeyDoesNotExist(repo_name, key)
+            
+            return data
 
-    def set_data(self, repo_name: str, key: str, newdata: typing.Any):
+    def put_data(self, repo_name: str, key: str, newdata: typing.Any):
         '''Create data in the existing repository.
         '''
         repo = self.get_repo(repo_name)

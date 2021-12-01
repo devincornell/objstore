@@ -26,14 +26,20 @@ class Client:
         return f'{self.host}:{self.port}'
 
     def status(self, **request_kwargs):
-        response = self.request('GET', 'status', **request_kwargs)
+        response = self.request('get', 'repositories/status', **request_kwargs)
         return response.json()
 
     def list_repos(self, **request_kwargs):
         '''Request a list of repositories from the server.
         '''
-        response = self.request('GET', 'list_repos', **request_kwargs)
+        response = self.request('get', 'repositories/list', **request_kwargs)
         return response.json()
+
+    def make_repo(self, repo_name: str, **request_kwargs):
+        '''Make a new repository on the server.
+        '''
+        params = {'repo_name': repo_name}
+        return self.request('post', 'repositories/new', params=params, **request_kwargs)
 
     def get_repo(self, repo_name: str):
         '''Get a repository object.

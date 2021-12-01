@@ -1,18 +1,49 @@
 
 import dataclasses
 import werkzeug
+import fastapi
 
-class RepoDoesNotExist(BaseException):
+# this page shows how error handling works
+# https://fastapi.tiangolo.com/tutorial/handling-errors/
+
+class ObjStoreBaseException(fastapi.HTTPException):
+    '''Each inheriting class must provide status_code and message properties for the http response.
+    '''
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, status_code=self.status_code, detail=self.message, **kwargs)
 
 class RepoAlreadyExists(BaseException):
-    def __init__(self, *args, **kwargs):
+    status_code = 409
+    def __init__(self, repo_name: str, *args, **kwargs):
+        self.repo_name = repo_name
         super().__init__(*args, **kwargs)
 
-class KeyDoesNotExist(BaseException):
-    def __init__(self, *args, **kwargs):
+    @property
+    def message(self):
+        return (f'The repository "{self.repo_name}" already exists on the server'
+            ' - cannot create it twice.')
+
+class RepoDoesNotExist(ObjStoreBaseException):
+    status_code = 404
+    def __init__(self, repo_name: str, *args, **kwargs):
+        self.repo_name = repo_name
         super().__init__(*args, **kwargs)
+
+    @property
+    def message(self):
+        return f'The repository "{self.repo_name}" does not exist on the server.'
+
+
+class KeyDoesNotExist(BaseException):
+    status_code = 404
+    def __init__(self, repo_name: str, key_name: str, *args, **kwargs):
+        self.repo_name = repo_name
+        self.key_name = key_name
+        super().__init__(*args, **kwargs)
+
+    @property
+    def message(self):
+        return f'The data "{self.key_name}" does not exist in repository "{self.repo_name}".'
 
 @dataclasses.dataclass
 class Error:

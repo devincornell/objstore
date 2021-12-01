@@ -3,6 +3,7 @@ import pickle
 import pathlib
 import fastapi
 
+from ..errors import RepoDoesNotExist, KeyDoesNotExist
 from .repodata import RepoData
 
 app = fastapi.FastAPI()
@@ -14,7 +15,7 @@ async def startup():
     app.state.fname = None
     app.state.repodata = RepoData(app.state.fname)
 
-@app.get("/status")
+@app.get("/repositories/status")
 async def status(request: fastapi.Request):
     return {
         "live": True, 
@@ -22,27 +23,30 @@ async def status(request: fastapi.Request):
         'num_items': request.app.state.repodata.num_items(),
     }
 
-@app.get("/list_repos")
-async def get_repos(request: fastapi.Request):
+@app.get("/repositories/list")
+async def list_repos(request: fastapi.Request):
     return list(request.app.state.repodata.list_repos())
 
-@app.get("/repo/{repo_name}", response_model=bytes)
-async def get_repo(request: fastapi.Request, repo_name: str, key: Optional[str] = None):
+@app.post("/repositories/new", status_code=201)
+async def make_repo(request: fastapi.Request, repo_name: str):
+    '''Make a new repository.
+    '''
     repodata = request.app.state.repodata
-    
-    if key is not None:
-        return fastapi.Response(content=pickle.dumps(repodata[repo_name][key]), media_type='application/octet-stream')
-    else:
-        return fastapi.Response(content=pickle.dumps(repodata[repo_name]), media_type='application/octet-stream')
+    repodata.make_repo(repo_name)
 
-@app.put("/repo/{repo_name}")
-async def get_repo(request: fastapi.Request, repo_name: str, key: Optional[str] = None):
-    data = request.app.state.repodata
+#@app.put("/repositories/repo/{repo_name}", status_code=201)
+#async def put_data(request: fastapi.Request, repo_name: str, key: str):
+#
+#    repo = request.app.state.repodata.set_repo(repo_name)
+
+@app.get("/repositories/repo/{repo_name}", response_model=bytes)
+async def get_data(request: fastapi.Request, repo_name: str, key: Optional[str] = None):
+    '''Get all (when key is None) or specific data from an existing repository.'''
     
-    if key is not None:
-        return fastapi.Response(content=pickle.dumps(data[repo_name][key]), media_type='application/octet-stream')
-    else:
-        return fastapi.Response(content=pickle.dumps(data[repo_name]), media_type='application/octet-stream')
+    # get either all data or a specific piece of data from the server
+    payload = pickle.dumps(request.app.state.repodata.get_data(repo_name, key=key))
+    
+    return fastapi.Response(content=payload, media_type='application/octet-stream')
 
 
 #@app.put("/repo/{repo_name}", response_model=bytes)
