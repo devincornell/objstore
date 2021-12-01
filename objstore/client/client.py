@@ -17,7 +17,7 @@ class Client:
 
         # try to get status from server. if a connection issue, it will be raised
         # if another error, 
-        if not self.status()['live']:
+        if not self.status()['running']:
             #raise errors.ServerNotLive('The server replied that it is not live!')
             pass
     
