@@ -1,30 +1,24 @@
 import multiprocessing
+import subprocess
 #import uvicorn
 
 import sys
+
+from requests.models import HTTPError
 sys.path.append('..')
 import objstore
-print(dir(objstore))
 
-PORT = 8654
+PORT = 8001
 HOST = 'localhost'
 
-def server_process(host, port):
-    '''Function to be run in the process.
-    '''
-    objstore.run(host=host, port=port)
 
 def test_basics():
-    # launch server process
-    #p = multiprocessing.Process(target=server_process, args=(HOST, PORT))
-    #p.run()
-
-    # make client object
-    with multiprocessing.Process(target=server_process, args=(HOST, PORT)) as p:
-        client = objstore.Client(HOST, port=PORT)
-        assert(client.status()['running'])
-    #p.terminate()
-    exit()
+    
+    
+    client = objstore.Client(HOST, PORT)
+    assert(client.status()['is_alive'])
+    
+    
     print(client.status())
     print(client.list_repos())
 

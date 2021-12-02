@@ -2,6 +2,7 @@
 import pathlib
 import pickle
 import typing
+import gc
 
 from ..errors import KeyDoesNotExist, RepoDoesNotExist, RepoAlreadyExists
 
@@ -45,6 +46,17 @@ class RepoData:
         
         self.data[repo_name] = {}
 
+    def delete_repo(self, repo_name: str):
+        '''Make a new repository on the server.
+        '''
+        try:
+            del self.data[repo_name]
+        except KeyError as e:
+            raise RepoDoesNotExist(repo_name)
+        
+        # garbage collect
+        gc.collect()
+
     def get_data(self, repo_name: str, key: str = None):
         '''Get the data from the given repository.
         '''
@@ -65,3 +77,14 @@ class RepoData:
         repo = self.get_repo(repo_name)
         repo[key] = newdata
 
+    def delete_data(self, repo_name: str, key: str):
+        '''Make a new repository on the server.
+        '''
+        repo = self.get_repo(repo_name)
+        try:
+            del repo[key]
+        except KeyError as e:
+            raise KeyDoesNotExist(repo_name, key)
+        
+        # garbage collect
+        gc.collect()

@@ -11,15 +11,13 @@ class Client:
         'put': requests.put,
     }
 
-    def __init__(self, host: str, port: int, test: bool = True):
+    def __init__(self, host: str, port: int, check_connection: bool = True):
         self.host = host if host.startswith('http://') else f'http://{host}'
         self.port = port
 
-        # try to get status from server. if a connection issue, it will be raised
-        # if another error, 
-        if not self.status()['running']:
-            #raise errors.ServerNotLive('The server replied that it is not live!')
-            pass
+        # try to get status from server. if a connection issue, exception will be raised
+        if check_connection:
+            self.status()
     
     @property
     def urlbase(self):
