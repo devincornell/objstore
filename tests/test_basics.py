@@ -26,9 +26,10 @@ def test_basics():
     assert(len(client.list_repos()) == 1)
     assert(repo.list_keys() == [])
     
-    print(repo.put_data('a', range(10)))
-    print(list(repo.get_data('a')))
-    print(repo.list_keys())
+    d = range(10)
+    repo.put_data('a', d)
+    assert(list(repo.get_data('a')) == list(d))
+    assert(repo.list_keys() == ['a'])
 
 
 

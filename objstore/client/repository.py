@@ -39,7 +39,7 @@ class Repository:
     def get_data(self, key: str, **request_kwargs):
         '''Download specific data from the server.
         '''
-        endpoint = f'repositories/repo/{self.name}'
+        endpoint = f'repositories/repo/{self.name}/data'
         # process args and make request
         request_kwargs['params'] = {**request_kwargs.get('params',{}), **{'key': key}}
         response = self.client.request('GET', endpoint, stream=True, **request_kwargs)
@@ -48,10 +48,10 @@ class Repository:
     def put_data(self, key: str, data: typing.Any, **request_kwargs):
         '''Upload data to the server.
         '''
-        endpoint = f'repositories/repo/{self.name}'
-        
+        endpoint = f'repositories/repo/{self.name}/data'
+
         # update key
-        request_kwargs['params'] = {**request_kwargs.get('params',{}), **{'key': key}}
+        request_kwargs['params'] = {**request_kwargs.get('params',{}), 'key': key}
         
         # prepare file data
         files = {'file': pickle.dumps(data)}
