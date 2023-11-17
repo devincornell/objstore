@@ -23,12 +23,19 @@ def server(**kwargs) -> None:
         log_level=kwargs['loglevel'],
     )
 
+import requests.exceptions
+
 @greet.command(help='List the keys running in the server.')
 @click.option('-h', '--host', default='localhost')
 @click.option('-p', '--port', default='8000', type=int)
 @click.option('--repo', default=None)
 def list(**kwargs) -> None:
-    client = Client(kwargs['host'], kwargs['port'])
+    try:
+        client = Client(kwargs['host'], kwargs['port'])
+    except requests.exceptions.ConnectionError as e:
+        #print(e)
+        print(f'Error: could not connect to server at {kwargs["host"]}:{kwargs["port"]}.')
+        return
     
     if not client.status()['is_alive']:
         raise RuntimeError('Could not get status from server.')
