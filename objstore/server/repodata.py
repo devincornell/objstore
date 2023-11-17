@@ -57,7 +57,7 @@ class RepoData:
         # garbage collect
         gc.collect()
 
-    def get_data(self, repo_name: str, key: str = None):
+    def get_data(self, repo_name: str, key: typing.Optional[str] = None) -> typing.Dict[str, typing.Any]:
         '''Get the data from the given repository.
         '''
         repo = self.get_repo(repo_name)
