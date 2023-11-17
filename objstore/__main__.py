@@ -1,18 +1,46 @@
 import uvicorn
 import argparse
-from .server import app
+from .server import run_server
+from .client import Client
 
-if __name__ == '__main__':
+import typing
+import click
+import inspect
+
+@click.group()#context_settings=CONTEXT_SETTINGS)
+def greet():
+    pass
+
+@greet.command(help='Start the fastapi uvicorn server.')
+@click.option('-h', '--host', default='localhost')
+@click.option('-p', '--port', default='8000', type=int)
+@click.option('-l', '--loglevel', default='info')
+#@click.option('--ignorecache', is_flag=True, default=False) # TODO
+def server(**kwargs) -> None:
+    return run_server(
+        host=kwargs['host'], 
+        port=kwargs['port'], 
+        log_level=kwargs['loglevel'],
+    )
+
+@greet.command(help='List the keys running in the server.')
+@click.option('-h', '--host', default='localhost')
+@click.option('-p', '--port', default='8000', type=int)
+@click.option('--repo', default=None)
+def list(**kwargs) -> None:
+    client = Client(kwargs['host'], kwargs['port'])
     
-    parser = argparse.ArgumentParser()
-
-    # just copied from these docs:
-    # https://www.uvicorn.org/#running-programmatically
-    parser.add_argument('-p', '--port', help='Port to listen on.', type=int, default=8000)
-    parser.add_argument('--host', help='Hostname to listen on.', type=str, default='localhost')
-    parser.add_argument('-l', '--log_level', help='Log level.', type=str, default='info')
-    #parser.add_argument('-r', '--reload', help='Reload when server code is changed?', action='store_true')
-    args = parser.parse_args()
-
-    uvicorn.run(app, **vars(args))
-
+    if not client.status()['is_alive']:
+        raise RuntimeError('Could not get status from server.')
+    
+    for rname in client.list_repos():
+        print(f'  {rname}')
+        repo = client.get_repo(rname)
+        for k in repo.list_keys():
+            print(f'    {k}')
+    
+    client.list_repos()
+    
+if __name__ == '__main__':
+    greet()
+    
