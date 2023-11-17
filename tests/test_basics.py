@@ -12,7 +12,7 @@ PORT = 8000
 HOST = 'localhost'
 
 
-def test_basics():
+def test_basics(host: str = HOST, port: int = PORT):
     
     client = objstore.Client(HOST, PORT)
     status = client.status()
